@@ -36,7 +36,7 @@ void loop() {
   //       Look for right calibration of sensor to 
   //       Get accurate data from humidity.
   //       Also try to use actual humidity sensor
-  const float temp = (((result / 3.9) / 5.0) + 32);
+  const float temp = ((result / 47.79) * 9.0 / 5.0) + 32;
 
   // Check if the temp is greater than 40 degree
   // If greater than then turn the relay (light) on
@@ -58,7 +58,6 @@ void loop() {
   lcd.clear();
 }
 
-
 float getAverage(const int sampleCount, int analogInputPin, int delayMs) {
   /**
    * There is a high chance of having noise while reading some analog input
@@ -75,4 +74,6 @@ float getAverage(const int sampleCount, int analogInputPin, int delayMs) {
 
   return sum / sampleCount;
 }
+
+
 
