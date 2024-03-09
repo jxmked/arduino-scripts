@@ -24,41 +24,50 @@ void setup() {
 
   // Register our pins
   pinMode(po_lineOut, OUTPUT);
-  pinMode(pi_tempSensor, INPUT);
 }
 
 void loop() {
   // Get the average reading with 10 samples and 1ms delay interval from
   // our temperature sensor.
-  const float result = getAverage(10, pi_tempSensor, 1);
-  
-  // Note: This formula is not accurate
-  //       Look for right calibration of sensor to 
-  //       Get accurate data from humidity.
-  //       Also try to use actual humidity sensor
-  const float temp = ((result / 47.79) * 9.0 / 5.0) + 32;
+  const float thermisVal = getAverage(10, pi_tempSensor, 1, true);
+
+  float temperature = resistanceToCelsius(thermisVal, 4750, .18);
 
   // Check if the temp is greater than 40 degree
   // If greater than then turn the relay (light) on
-  if(temp > activateThres) {
+  if(temperature > activateThres) {
     digitalWrite(po_lineOut, HIGH);
   } else {
     // Else turn the relay (light) off
     digitalWrite(po_lineOut, LOW);
   }
 
+  lcd.clear();
+
+  lcd.setCursor(0, 0);
+
   // We can also see the actual temperature reading
   // by printing it into LCD
-  lcd.print(temp);
+  lcd.print(temperature);
+
+  //lcd.setCursor(0, 1);
+  //lcd.print(thermisVal);
 
   // Add some delay in millisecond to refresh the reading 
   delay(500);
-
-  // Clear the lcd before writting new ones
-  lcd.clear();
 }
 
-float getAverage(const int sampleCount, int analogInputPin, int delayMs) {
+float resistanceToCelsius(float t1, float t2, float coef) {
+  /**
+   * t1 = input value
+   * t2 = expected resistance at coef
+   * coef = temperature at t2 resistance
+   **/
+   return ((t2 / t1) - 1) / coef;
+}
+
+
+float getAverage(const int sampleCount, int analogInputPin, int delayMs, bool invertValue) {
   /**
    * There is a high chance of having noise while reading some analog input
    * so, instead of using single value from input, we get some samples and 
@@ -72,7 +81,17 @@ float getAverage(const int sampleCount, int analogInputPin, int delayMs) {
     delay(delayMs);
   }
 
+  if(invertValue)
+    return 1023 - (sum / sampleCount);
+
   return sum / sampleCount;
+}
+
+bool isInRange(int readIn, int minInp, int maxInp) {
+  /**
+   * Check whether the readIn is within range of a min and max value
+   **/
+  return minInp < readIn && readIn < maxInp;
 }
 
 
