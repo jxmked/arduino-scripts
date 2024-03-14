@@ -11,7 +11,7 @@
 #define po_lineOut 7
 
 // Threshold
-#define activateThres 40.0
+#define activateThres 38.0
 
 LiquidCrystal_I2C lcd(0x27, LCD_WIDTH, LCD_HEIGHT);
 
@@ -36,10 +36,10 @@ void loop() {
   // Check if the temp is greater than 40 degree
   // If greater than then turn the relay (light) on
   if(temperature > activateThres) {
-    digitalWrite(po_lineOut, HIGH);
+    digitalWrite(po_lineOut, LOW);
   } else {
     // Else turn the relay (light) off
-    digitalWrite(po_lineOut, LOW);
+    digitalWrite(po_lineOut, HIGH);
   }
 
   lcd.clear();
@@ -48,10 +48,13 @@ void loop() {
 
   // We can also see the actual temperature reading
   // by printing it into LCD
+  lcd.print("Temp: ");
   lcd.print(temperature);
 
-  //lcd.setCursor(0, 1);
-  //lcd.print(thermisVal);
+  lcd.setCursor(0, 1);
+  lcd.print("Thr: ");
+  lcd.print(activateThres);
+  lcd.print(" deg C");
 
   // Add some delay in millisecond to refresh the reading 
   delay(500);
